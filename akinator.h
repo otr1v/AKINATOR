@@ -1,49 +1,14 @@
 #include "head_aki.h"
-
-//void CreateTree()
-void AddNode(Node* node, char* text)
+void CreateTree(Node* node)
 {
-    // int counter = 0;
     if (node == NULL)
     {
-        node = (Node*) malloc (sizeof(node));
+        node = (node*) malloc (sizeof(node*));
         node->left = NULL;
         node->right = NULL;
-        //printf("dkdk");
-        //return;
-        //counter++;
-    }
-    node->text = text;
-    //if (counter == 1) return;
-    
-    printf("%s?\ntype y/n:\n", node->text);
-    char ch = ' ';
-    int f = scanf("%c", &ch);
-    printf("%c", ch);
-    char answer[] = "";
-
-    //printf("%s", answer);
-    
-    if (ch == 'y')
-    {
-        AddAnswer(node, answer);
-
-        FreeBuffer();
-        AddNode(node->left, answer);
-        
-    }
-    else if (ch == 'n')
-    {
-        AddAnswer(node, answer);
-
-        FreeBuffer();
-        AddNode(node->right, answer);
-    }
-    else
-    {
-        printf("retry answering only with y or n\n");
-        // AddNode(node, text);
-        return;
+        printf("type your first question\n");
+        scanf("%s", node->text);
+        // node->text = "";
     }
 }
 
@@ -67,11 +32,11 @@ void PreorderPrint(Node* node)
 
 //============================================================
 
-void AddAnswer(Node* node, char* answer)
+void AddAnswer(Node* node)
 {
     printf("type your answer without \"?\" and without any spaces\n");
-    //char str[] = "";
-    scanf("%s", answer);
+    scanf("%s", node->text);
+    return;
     //printf("%s", str);
 }
 
@@ -109,4 +74,105 @@ void FreeBuffer()
     int x = 0;
     while ((x = getchar()) != EOF && x != '\n') 
         ;
+}
+
+//===================================
+
+int Akinator(Node* node)
+{
+
+}
+                                    //рассмотрим случай, когда мы должны путешествовать по дереву, тогда 
+                                    // мы просто должны перемещаться дальше, а аргумент мы должны получать из читалки файла нашего
+                                    // добавлять новые узлы когда новая игра 
+                                    //спрашивать пользователя надо ли ему добавить новый узел
+                                    //так как персонаж не подошел
+//============================================
+
+void AddNode(Node* node)
+{
+    //node->text = text;
+    char ch = ' ';
+    if (node->left == NULL && node->right == NULL)
+    {
+        printf("do you want to add an answer or a question?\n");
+        scanf("%c", &ch);
+                   // спросить хочет ли пользователь добавить новый вопрос или ответ
+        if (ch == 'y') AddQuestion(node); 
+        return;
+    }
+    printf("%s?\ntype y/n:\n", node->text);
+    
+    scanf("%c", &ch);
+    FreeBuffer();
+    if (ch == 'y')
+    {
+        AddNode(node->left);
+    }
+    else if (ch == 'n')
+    {
+        AddNode(node->right);
+    }
+    else
+    {
+        printf("what???\n");
+    }
+}
+
+//=============================
+
+void AddQuestion(Node* node)
+{
+    //if (node->)
+    printf("%s?\n", node->text);
+    char ch = ' ';
+    int f = scanf("%c", &ch);
+    if (ch == 'y')
+    {
+        //AddQuestion(node->left);
+        // node = node->left;
+        AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
+                                            // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
+    }
+    else if (ch == 'n')
+    {
+        // node = node->right;
+        AddAnswer(node->right);
+    }
+    else
+    {
+        printf("smth bad have happened\n");
+    }
+    //printf("%s?\n", node->text);
+}
+
+//==========================
+
+void ReadBase(Node* node, FILE* input)
+{
+    char bracket[] = "";
+    fscanf(input, "%s", bracket);
+    if (!strcmp(bracket, "{"))
+    {
+        ConstructNode(node);
+        ReadBase(node->left, input);
+        ReadBase(node->right, input);
+    }
+    else if (!strcmp(bracket, "}"))
+    {
+        ungetc('}', input);
+        return;
+    }
+    fscanf(input, "%s", bracket);
+    return;
+}
+
+//====================================
+
+void ConstructNode(Node* node)
+{
+    node = (node*) malloc(sizeof(node*));
+    node->left  = NULL;
+    node->right = NULL;
+    node->text = (char*) malloc (MAXLEN * sizeof(char));
 }
