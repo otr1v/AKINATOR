@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define CHECK_ERR(condition, message_error) \
                 do{                                    \
@@ -17,7 +18,7 @@ typedef struct node
     char*        text;
     struct node* left;
     struct node* right;
-    //char*        head;
+    int          size;
 }Node;
 
 typedef struct 
@@ -25,9 +26,15 @@ typedef struct
     Node* r;
 }Tree;
 
-void AddNode(Node* node, char* text);
+
+const int MAXLEN = 30;
+
+void AddNode(Node* node);
 void PreorderPrint(Node* node);
-void AddAnswer(Node* node, char* answer);
+void AddAnswer(Node* node);
 void SaveBase(FILE* base, Node* node, int amountspaces);
 void FreeBuffer();
+void AddQuestion(Node* node);
+void ReadBase(Node* node, FILE* input);
+void ConstructNode(Node* node);
 #endif
