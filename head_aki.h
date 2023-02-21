@@ -28,7 +28,7 @@ typedef struct
 
 
 const int MAXLEN = 30;
-
+void CreateNode(Node** node);
 void AddNode(Node* node);
 void PreorderPrint(Node* node);
 void AddAnswer(Node* node);
@@ -36,5 +36,5 @@ void SaveBase(FILE* base, Node* node, int amountspaces);
 void FreeBuffer();
 void AddQuestion(Node* node);
 void ReadBase(Node* node, FILE* input);
-void ConstructNode(Node* node);
+void ConstructNode(Node** node);
 #endif
