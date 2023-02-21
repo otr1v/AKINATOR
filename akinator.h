@@ -1,15 +1,20 @@
 #include "head_aki.h"
-void CreateTree(Node* node)
+void CreateTree(Node** node)
 {
-    if (node == NULL)
-    {
-        node = (node*) malloc (sizeof(node*));
-        node->left = NULL;
-        node->right = NULL;
+    // if (node == NULL)
+    // {
+        *node = (Node*) malloc (sizeof(Node));
+        (*node)->left = NULL;
+        (*node)->right = NULL;
         printf("type your first question\n");
-        scanf("%s", node->text);
+        (*node)->text = (char *) malloc (MAXLEN * sizeof(char));
+        char buf[100] = "";
+        scanf("%s", buf);
+        FreeBuffer();
+        strcpy((*node)->text, buf);
         // node->text = "";
-    }
+    
+    printf("%s", (*node)->text);
 }
 
 //============================================
@@ -35,6 +40,7 @@ void PreorderPrint(Node* node)
 void AddAnswer(Node* node)
 {
     printf("type your answer without \"?\" and without any spaces\n");
+    printf("%p", node->text);
     scanf("%s", node->text);
     return;
     //printf("%s", str);
@@ -58,6 +64,7 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
         fprintf(base, "\n");
         SaveBase(base, node->right, amountspaces + 4);
     }
+    
 }
 
 //============================================
@@ -73,7 +80,7 @@ void FreeBuffer()
 {
     int x = 0;
     while ((x = getchar()) != EOF && x != '\n') 
-        ;
+        continue;
 }
 
 //===================================
@@ -92,24 +99,25 @@ int Akinator(Node* node)
 void AddNode(Node* node)
 {
     //node->text = text;
-    char ch = ' ';
+    char answer[3] = "";
     if (node->left == NULL && node->right == NULL)
     {
-        printf("do you want to add an answer or a question?\n");
-        scanf("%c", &ch);
+        printf("do you want to add an answer or a question?(y/n)\n");
+        scanf("%s", answer);
                    // спросить хочет ли пользователь добавить новый вопрос или ответ
-        if (ch == 'y') AddQuestion(node); 
+        if (!strcmp(answer, "y")) AddQuestion(node); 
+        //SaveBase()
         return;
     }
     printf("%s?\ntype y/n:\n", node->text);
     
-    scanf("%c", &ch);
+    scanf("%c", answer);
     FreeBuffer();
-    if (ch == 'y')
+    if (!strcmp(answer, "y"))
     {
         AddNode(node->left);
     }
-    else if (ch == 'n')
+    else if (!strcmp(answer, "n"))
     {
         AddNode(node->right);
     }
@@ -124,17 +132,19 @@ void AddNode(Node* node)
 void AddQuestion(Node* node)
 {
     //if (node->)
+    FreeBuffer();
     printf("%s?\n", node->text);
-    char ch = ' ';
-    int f = scanf("%c", &ch);
-    if (ch == 'y')
+    char answer[MAXLEN] = "";
+    scanf("%s", answer);
+    if (!strcmp(answer, "y"))
     {
         //AddQuestion(node->left);
         // node = node->left;
+        ConstructNode(&node->left);
         AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
                                             // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
     }
-    else if (ch == 'n')
+    else if (!strcmp(answer, "n"))
     {
         // node = node->right;
         AddAnswer(node->right);
@@ -154,7 +164,7 @@ void ReadBase(Node* node, FILE* input)
     fscanf(input, "%s", bracket);
     if (!strcmp(bracket, "{"))
     {
-        ConstructNode(node);
+        ConstructNode(&node);
         ReadBase(node->left, input);
         ReadBase(node->right, input);
     }
@@ -169,10 +179,10 @@ void ReadBase(Node* node, FILE* input)
 
 //====================================
 
-void ConstructNode(Node* node)
+void ConstructNode(Node** node)
 {
-    node = (node*) malloc(sizeof(node*));
-    node->left  = NULL;
-    node->right = NULL;
-    node->text = (char*) malloc (MAXLEN * sizeof(char));
+    *node = (Node*) malloc(sizeof(Node));
+    (*node)->left  = NULL;
+    (*node)->right = NULL;
+    (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
 }
