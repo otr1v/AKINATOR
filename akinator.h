@@ -21,18 +21,14 @@ void CreateTree(Node** node)
 
 void PreorderPrint(Node* node)
 {
-    if (!node)    return;
-    printf("%s\n", node->text);
-
-    if (node->left)
+    if (node != NULL)
     {
+        printf("%s\n", node->text);
         PreorderPrint(node->left);
-    }
-    if (node->right)   
-    {
         PreorderPrint(node->right);
+        
     }
-   
+    return;
 }
 
 //============================================================
@@ -53,7 +49,12 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
     char ch = '{';
     //  fprintf(base, "fhfh");
     fprintf(base, "%*c %s", amountspaces, ch, node->text);
-    if ((node->left == NULL) && (node->right == NULL))  fprintf(base, " }\n");
+    if ((node->left == NULL) && (node->right == NULL))
+    {   
+        fprintf(base, " }\n");
+        //return;
+        // return;
+    }
     else if (node->left)
     {
         fprintf(base, "\n");
@@ -64,6 +65,13 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
         fprintf(base, "\n");
         SaveBase(base, node->right, amountspaces + 4);
     }
+    if (amountspaces != 0)
+    {
+        fprintf(base, "%*c\n ", amountspaces - 4, '}');
+        amountspaces -= 4 ;
+        printf("alo");
+    }
+    return;
     
 }
 
@@ -98,26 +106,33 @@ int Akinator(Node* node)
 
 void AddNode(Node* node)
 {
-    //node->text = text;
     char answer[3] = "";
+    if (!node)
+    {
+        printf("do you want to add an answer or a question?(y/n)\n");
+        scanf("%s", answer);
+                   // спросить хочет ли пользователь добавить новый вопрос или ответ
+        if (strcmp(answer, "y") == 0) AddRightNode(node); 
+        return; 
+    }
     if (node->left == NULL && node->right == NULL)
     {
         printf("do you want to add an answer or a question?(y/n)\n");
         scanf("%s", answer);
                    // спросить хочет ли пользователь добавить новый вопрос или ответ
-        if (!strcmp(answer, "y")) AddQuestion(node); 
+        if (strcmp(answer, "y") == 0) AddQuestion(node); 
         //SaveBase()
         return;
     }
     printf("%s?\ntype y/n:\n", node->text);
     
-    scanf("%c", answer);
+    scanf("%s", answer);
     FreeBuffer();
-    if (!strcmp(answer, "y"))
+    if (strcmp(answer, "y") == 0)
     {
         AddNode(node->left);
     }
-    else if (!strcmp(answer, "n"))
+    else if (strcmp(answer, "n") == 0)
     {
         AddNode(node->right);
     }
@@ -136,7 +151,7 @@ void AddQuestion(Node* node)
     printf("%s?\n", node->text);
     char answer[MAXLEN] = "";
     scanf("%s", answer);
-    if (!strcmp(answer, "y"))
+    if (strcmp(answer, "y") == 0)
     {
         //AddQuestion(node->left);
         // node = node->left;
@@ -144,9 +159,10 @@ void AddQuestion(Node* node)
         AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
                                             // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
     }
-    else if (!strcmp(answer, "n"))
+    else if (strcmp(answer, "n") == 0)
     {
         // node = node->right;
+        ConstructNode(&node->right);
         AddAnswer(node->right);
     }
     else
@@ -158,21 +174,25 @@ void AddQuestion(Node* node)
 
 //==========================
 
-void ReadBase(Node* node, FILE* input)
+void ReadBase(Node** node, FILE* input)
 {
     char bracket[] = "";
     fscanf(input, "%s", bracket);
-    if (!strcmp(bracket, "{"))
+    if (strcmp(bracket, "{") == 0)
     {
-        ConstructNode(&node);
-        ReadBase(node->left, input);
-        ReadBase(node->right, input);
+        ConstructNode(node);
+        printf("node %p\n", node);
+        fscanf(input, "%s", (*node)->text);
+        printf("node->text %s\n", (*node)->text);
+        ReadBase(&(*node)->left, input);
+        ReadBase(&(*node)->right, input);
     }
-    else if (!strcmp(bracket, "}"))
+    else if (strcmp(bracket, "}") == 0)
     {
         ungetc('}', input);
         return;
     }
+    //printf("%s\n", bracket);
     fscanf(input, "%s", bracket);
     return;
 }
@@ -185,4 +205,13 @@ void ConstructNode(Node** node)
     (*node)->left  = NULL;
     (*node)->right = NULL;
     (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
+}
+
+//=====================================
+
+void AddRightNode(Node* node)
+{
+    FreeBuffer();
+    ConstructNode(&node);
+    AddAnswer(node);
 }
