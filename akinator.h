@@ -26,8 +26,10 @@ void PreorderPrint(Node* node)
         printf("%s\n", node->text);
         PreorderPrint(node->left);
         PreorderPrint(node->right);
-        
+       // printf("%s\n", node->text);
     }
+    // printf("%s\n", node->text);
+
     return;
 }
 
@@ -38,6 +40,7 @@ void AddAnswer(Node* node)
     printf("type your answer without \"?\" and without any spaces\n");
     printf("%p", node->text);
     scanf("%s", node->text);
+    // printf("%s\n\n", node->text);
     return;
     //printf("%s", str);
 }
@@ -49,28 +52,29 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
     char ch = '{';
     //  fprintf(base, "fhfh");
     fprintf(base, "%*c %s", amountspaces, ch, node->text);
-    if ((node->left == NULL) && (node->right == NULL))
-    {   
-        fprintf(base, " }\n");
-        //return;
-        // return;
-    }
-    else if (node->left)
+    // if ((node->left == NULL) && (node->right == NULL))
+    // {   
+    //     fprintf(base, " }\n");
+    //     //return;
+    //     // return;
+    // }
+    if (node->left)
     {
         fprintf(base, "\n");
         SaveBase(base, node->left, amountspaces + 4);
     }
-    else if (node->right)
+    if (node->right)
     {
         fprintf(base, "\n");
         SaveBase(base, node->right, amountspaces + 4);
     }
-    if (amountspaces != 0)
+    if (!node->right && !node->left)
     {
-        fprintf(base, "%*c\n ", amountspaces - 4, '}');
         amountspaces -= 4 ;
         printf("alo");
     }
+    fprintf(base, "%*c\n", amountspaces - 4, '}');
+
     return;
     
 }
@@ -107,14 +111,15 @@ int Akinator(Node* node)
 void AddNode(Node* node)
 {
     char answer[3] = "";
-    if (!node)
-    {
-        printf("do you want to add an answer or a question?(y/n)\n");
-        scanf("%s", answer);
-                   // спросить хочет ли пользователь добавить новый вопрос или ответ
-        if (strcmp(answer, "y") == 0) AddRightNode(node); 
-        return; 
-    }
+    // if (!node)
+    // {
+    //     printf("do you want to add an answer or a question?    (y/n)\n");
+    //     scanf("%s", answer);
+    //                // спросить хочет ли пользователь добавить новый вопрос или ответ
+    //     if (strcmp(answer, "y") == 0) AddRightNode(&node); 
+    //     printf("node %s", node->text);
+    //     return; 
+    // }
     if (node->left == NULL && node->right == NULL)
     {
         printf("do you want to add an answer or a question?(y/n)\n");
@@ -134,7 +139,16 @@ void AddNode(Node* node)
     }
     else if (strcmp(answer, "n") == 0)
     {
-        AddNode(node->right);
+        if (node->right == NULL)
+        {
+            printf("do you want to add an answer or a question?(y/n)\n");
+            scanf("%s", answer);
+            if (strcmp(answer, "y") == 0) AddQuestion(node);
+        }
+        else
+        {
+            AddNode(node->right);
+        }
     }
     else
     {
@@ -209,9 +223,10 @@ void ConstructNode(Node** node)
 
 //=====================================
 
-void AddRightNode(Node* node)
+void AddRightNode(Node** node)
 {
     FreeBuffer();
-    ConstructNode(&node);
-    AddAnswer(node);
+    ConstructNode(node);
+    AddAnswer(*node);
+    // printf("%s is \n",(*node)->text);
 }
