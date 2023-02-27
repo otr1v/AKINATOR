@@ -52,12 +52,12 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
     char ch = '{';
     //  fprintf(base, "fhfh");
     fprintf(base, "%*c %s", amountspaces, ch, node->text);
-    // if ((node->left == NULL) && (node->right == NULL))
-    // {   
-    //     fprintf(base, " }\n");
-    //     //return;
-    //     // return;
-    // }
+    if ((node->left == NULL) && (node->right == NULL))
+    {   
+        fprintf(base, " }\n");
+        return;
+        // return;
+    }
     if (node->left)
     {
         fprintf(base, "\n");
@@ -68,12 +68,16 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
         fprintf(base, "\n");
         SaveBase(base, node->right, amountspaces + 4);
     }
-    if (!node->right && !node->left)
-    {
-        amountspaces -= 4 ;
-        printf("alo");
-    }
-    fprintf(base, "%*c\n", amountspaces - 4, '}');
+    if (node->right == NULL || node->left == NULL)  fprintf(base, "%*c\n", amountspaces, '}');
+
+    if (node->right && node->left)                  fprintf(base, "%*c\n", amountspaces, '}');
+    // if (!node->right && !node->left)
+    // {
+    //     amountspaces -= 4 ;
+    //     printf("alo");
+    // }
+    //printf("%d", amountspaces);
+   // fprintf(base, "%*c\n", amountspaces, '}');
 
     return;
     
@@ -81,10 +85,10 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
 
 //============================================
 
-void CreateQuestion(Node* node, char* text)
-{
-    node->text = text;
-}
+// void CreateQuestion(Node* node, char* text)
+// {
+//     node->text = text;
+// }
 
 //========================
 
@@ -97,9 +101,18 @@ void FreeBuffer()
 
 //===================================
 
-int Akinator(Node* node)
+void PlayAkinator(Node* node)
 {
-
+    FILE* base = fopen("base.txt", "a+");
+    printf("a gde");
+    ReadBase(&node, base);
+    AddNode(node);
+    PreorderPrint(node);
+    fclose(base);
+    FILE* output = fopen("base.txt", "w+");
+    GraphDump(node);
+    SaveBase(output, node, 0);
+    fclose(output);
 }
                                     //рассмотрим случай, когда мы должны путешествовать по дереву, тогда 
                                     // мы просто должны перемещаться дальше, а аргумент мы должны получать из читалки файла нашего
@@ -229,4 +242,71 @@ void AddRightNode(Node** node)
     ConstructNode(node);
     AddAnswer(*node);
     // printf("%s is \n",(*node)->text);
+}
+
+//==========================
+
+void Aki(Node* node)
+{
+    printf("WELCOME TO AKINATOR\nHERE YOU CAN GUESS YOUR HERO, ANSWERING QUESTIONS\n");
+    printf("MENU:\nType your command: play, quit or info about where the character is\n");
+    char cmd[MAXLEN] = "";
+    scanf("%s", cmd);
+    #define DEF_CMD(num, name, code)           \
+            if (strcasecmp(cmd, #name) == 0)    \
+                code                             
+    #include "cmd.h"
+    #undef DEF_CMD
+
+            
+}
+
+//==========================================
+
+void GraphDump(Node* node)
+{
+    FILE* dumpfile = fopen("dumpfile.txt", "w");
+    fprintf(dumpfile, "digraph G {\n");
+    fprintf(dumpfile, "%s[shape = box, color = blue];\n", node->text);
+    if (node->left)
+    {
+        // fprintf(dumpfile, "%s -> ", node->text);
+        // node = node->left;
+        // fprintf(dumpfile, "%s", node->text);
+        // fprintf(dumpfile, "%s[shape = box, color = green]", node->text);
+        GraphTree(node, dumpfile);
+    }
+    if (node->right)
+    {
+        GraphRightTree(node, dumpfile);
+    }
+    //GraphTree(node, dumpfile);
+    fprintf(dumpfile, "}");
+    fclose(dumpfile);
+}
+
+//======================================
+
+void GraphTree(Node* node, FILE* dumpfile)
+{
+
+    fprintf(dumpfile, "%s -> ", node->text);
+    node = node->left;
+    fprintf(dumpfile, "%s\n", node->text);
+    fprintf(dumpfile, "%s[shape = box, color = green];\n", node->text);
+    GraphTree(node, dumpfile);
+    
+}
+
+//=============================
+
+void GraphRightTree(Node* node, FILE* dumpfile)
+{
+    
+    fprintf(dumpfile, "%s -> ", node->text);
+    node = node->right;
+    fprintf(dumpfile, "%s\n", node->text);
+    fprintf(dumpfile, "%s[shape = box, color = red];\n", node->text);
+    //GraphTree(node, dumpfile);
+    
 }
