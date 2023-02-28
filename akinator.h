@@ -38,7 +38,7 @@ void PreorderPrint(Node* node)
 void AddAnswer(Node* node)
 {
     printf("type your answer without \"?\" and without any spaces\n");
-    printf("%p", node->text);
+   // printf("%p", node->text);
     scanf("%s", node->text);
     // printf("%s\n\n", node->text);
     return;
@@ -71,13 +71,6 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
     if (node->right == NULL || node->left == NULL)  fprintf(base, "%*c\n", amountspaces, '}');
 
     if (node->right && node->left)                  fprintf(base, "%*c\n", amountspaces, '}');
-    // if (!node->right && !node->left)
-    // {
-    //     amountspaces -= 4 ;
-    //     printf("alo");
-    // }
-    //printf("%d", amountspaces);
-   // fprintf(base, "%*c\n", amountspaces, '}');
 
     return;
     
@@ -85,10 +78,35 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
 
 //============================================
 
-// void CreateQuestion(Node* node, char* text)
-// {
-//     node->text = text;
-// }
+void CreateQuestion(Node* node)
+{
+    FreeBuffer();
+    char character[MAXLEN] = "";
+    printf("type your character:\n");
+    scanf("%s", character);
+    char tmp[MAXLEN]    = "";
+    char answer[MAXLEN] = "";
+    strcpy(tmp, node->text);
+    printf("what is the difference between %s and %s?(question where your character has answer no)\n", character, tmp);
+    scanf("%s", node->text);
+    // printf("%s?(y/n)", node->text);
+    // scanf("%s", answer);
+    // if (strcmp(answer, "y") == 0)
+    // {
+    ConstructNode(&node->left);
+    
+    printf("%s is ", tmp);
+    strcpy(node->left->text, tmp);
+    
+    // else if (strcmp(answer, "n") == 0)
+    // {
+        
+    ConstructNode(&node->right);
+        // node = node->right;
+    printf("%s is ", character);
+    strcpy(node->right->text, character);
+    // }
+}
 
 //========================
 
@@ -104,7 +122,7 @@ void FreeBuffer()
 void PlayAkinator(Node* node)
 {
     FILE* base = fopen("base.txt", "a+");
-    printf("a gde");
+   // printf("a gde");
     ReadBase(&node, base);
     AddNode(node);
     PreorderPrint(node);
@@ -124,22 +142,16 @@ void PlayAkinator(Node* node)
 void AddNode(Node* node)
 {
     char answer[3] = "";
-    // if (!node)
-    // {
-    //     printf("do you want to add an answer or a question?    (y/n)\n");
-    //     scanf("%s", answer);
-    //                // спросить хочет ли пользователь добавить новый вопрос или ответ
-    //     if (strcmp(answer, "y") == 0) AddRightNode(&node); 
-    //     printf("node %s", node->text);
-    //     return; 
-    // }
+    
     if (node->left == NULL && node->right == NULL)
     {
-        printf("do you want to add an answer or a question?(y/n)\n");
+        printf("Your character is %s, YOU ARE WINNER\n", node->text);
+        printf("Am I right?\n");
+        //printf("do you want to add an answer or a question?(a/q/no)\n");       
         scanf("%s", answer);
                    // спросить хочет ли пользователь добавить новый вопрос или ответ
-        if (strcmp(answer, "y") == 0) AddQuestion(node); 
-        //SaveBase()
+        //if (strcmp(answer, "y") == 0) /*NewNode(node);*/
+        if (strcmp(answer, "n") == 0) CreateQuestion(node); 
         return;
     }
     printf("%s?\ntype y/n:\n", node->text);
@@ -154,9 +166,10 @@ void AddNode(Node* node)
     {
         if (node->right == NULL)
         {
-            printf("do you want to add an answer or a question?(y/n)\n");
+            printf("do you want to add an answer or a question?(a/q/no)\n");
             scanf("%s", answer);
-            if (strcmp(answer, "y") == 0) AddQuestion(node);
+            if (strcmp(answer, "a") == 0) NewNode(node);
+            if (strcmp(answer, "q") == 0) CreateQuestion(node);
         }
         else
         {
@@ -171,7 +184,7 @@ void AddNode(Node* node)
 
 //=============================
 
-void AddQuestion(Node* node)
+void NewNode(Node* node)
 {
     //if (node->)
     FreeBuffer();
@@ -208,9 +221,9 @@ void ReadBase(Node** node, FILE* input)
     if (strcmp(bracket, "{") == 0)
     {
         ConstructNode(node);
-        printf("node %p\n", node);
+       // printf("node %p\n", node);
         fscanf(input, "%s", (*node)->text);
-        printf("node->text %s\n", (*node)->text);
+        //printf("node->text %s\n", (*node)->text);
         ReadBase(&(*node)->left, input);
         ReadBase(&(*node)->right, input);
     }
@@ -255,10 +268,10 @@ void Aki(Node* node)
     #define DEF_CMD(num, name, code)           \
             if (strcasecmp(cmd, #name) == 0)    \
                 code                             
+                                       
     #include "cmd.h"
     #undef DEF_CMD
-
-            
+ 
 }
 
 //==========================================
@@ -267,46 +280,41 @@ void GraphDump(Node* node)
 {
     FILE* dumpfile = fopen("dumpfile.txt", "w");
     fprintf(dumpfile, "digraph G {\n");
-    fprintf(dumpfile, "%s[shape = box, color = blue];\n", node->text);
-    if (node->left)
-    {
-        // fprintf(dumpfile, "%s -> ", node->text);
-        // node = node->left;
-        // fprintf(dumpfile, "%s", node->text);
-        // fprintf(dumpfile, "%s[shape = box, color = green]", node->text);
-        GraphTree(node, dumpfile);
-    }
-    if (node->right)
-    {
-        GraphRightTree(node, dumpfile);
-    }
-    //GraphTree(node, dumpfile);
+    GraphTree(node, dumpfile, 0);
     fprintf(dumpfile, "}");
     fclose(dumpfile);
 }
 
 //======================================
 
-void GraphTree(Node* node, FILE* dumpfile)
+void GraphTree(Node* node, FILE* dumpfile, int flag)    // flag defines color of the box
 {
-
-    fprintf(dumpfile, "%s -> ", node->text);
-    node = node->left;
-    fprintf(dumpfile, "%s\n", node->text);
-    fprintf(dumpfile, "%s[shape = box, color = green];\n", node->text);
-    GraphTree(node, dumpfile);
-    
+                                                        //can be added a flag to make another color
+    if ((node != NULL) && (flag == 0))
+    {   
+        fprintf(dumpfile, "%s\n", node->text);
+        fprintf(dumpfile, "%s[shape = box, color = blue];\n", node->text);
+    }
+    else if ((node != NULL) && (flag == 1))
+    {   
+        fprintf(dumpfile, "%s\n", node->text);
+        fprintf(dumpfile, "%s[shape = box, color = green];\n", node->text);
+    }
+    else if ((node != NULL) && (flag == 2))
+    {   
+        fprintf(dumpfile, "%s\n", node->text);
+        fprintf(dumpfile, "%s[shape = box, color = red];\n", node->text);
+    }
+    if (node->left)
+    {
+        fprintf(dumpfile, "%s -> ", node->text);
+        GraphTree(node->left, dumpfile, 1);
+    }
+    if (node->right)
+    {
+        fprintf(dumpfile, "%s -> ", node->text);
+        GraphTree(node->right, dumpfile, 2);
+    }
 }
 
 //=============================
-
-void GraphRightTree(Node* node, FILE* dumpfile)
-{
-    
-    fprintf(dumpfile, "%s -> ", node->text);
-    node = node->right;
-    fprintf(dumpfile, "%s\n", node->text);
-    fprintf(dumpfile, "%s[shape = box, color = red];\n", node->text);
-    //GraphTree(node, dumpfile);
-    
-}
