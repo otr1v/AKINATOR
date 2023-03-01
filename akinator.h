@@ -1,21 +1,18 @@
 #include "head_aki.h"
-void CreateTree(Node** node)
-{
-    // if (node == NULL)
-    // {
-        *node = (Node*) malloc (sizeof(Node));
-        (*node)->left = NULL;
-        (*node)->right = NULL;
-        printf("type your first question\n");
-        (*node)->text = (char *) malloc (MAXLEN * sizeof(char));
-        char buf[100] = "";
-        scanf("%s", buf);
-        FreeBuffer();
-        strcpy((*node)->text, buf);
-        // node->text = "";
+// void CreateTree(Node** node)
+// {
+//     *node = (Node*) malloc (sizeof(Node));
+//     (*node)->left = NULL;
+//     (*node)->right = NULL;
+//     printf("type your first question\n");
+//     (*node)->text = (char *) malloc (MAXLEN * sizeof(char));
+//     char buf[100] = "";
+//     scanf("%s", buf);
+//     FreeBuffer();
+//     strcpy((*node)->text, buf);
     
-    printf("%s", (*node)->text);
-}
+//     printf("%s", (*node)->text);
+// }
 
 //============================================
 
@@ -26,9 +23,7 @@ void PreorderPrint(Node* node)
         printf("%s\n", node->text);
         PreorderPrint(node->left);
         PreorderPrint(node->right);
-       // printf("%s\n", node->text);
     }
-    // printf("%s\n", node->text);
 
     return;
 }
@@ -38,11 +33,8 @@ void PreorderPrint(Node* node)
 void AddAnswer(Node* node)
 {
     printf("type your answer without \"?\" and without any spaces\n");
-   // printf("%p", node->text);
     scanf("%s", node->text);
-    // printf("%s\n\n", node->text);
     return;
-    //printf("%s", str);
 }
 
 //==================================================
@@ -50,13 +42,11 @@ void AddAnswer(Node* node)
 void SaveBase(FILE* base, Node* node, int amountspaces)
 {
     char ch = '{';
-    //  fprintf(base, "fhfh");
     fprintf(base, "%*c %s", amountspaces, ch, node->text);
     if ((node->left == NULL) && (node->right == NULL))
     {   
         fprintf(base, " }\n");
         return;
-        // return;
     }
     if (node->left)
     {
@@ -73,7 +63,6 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
     if (node->right && node->left)                  fprintf(base, "%*c\n", amountspaces, '}');
 
     return;
-    
 }
 
 //============================================
@@ -84,28 +73,22 @@ void CreateQuestion(Node* node)
     char character[MAXLEN] = "";
     printf("type your character:\n");
     scanf("%s", character);
+
     char tmp[MAXLEN]    = "";
     char answer[MAXLEN] = "";
     strcpy(tmp, node->text);
     printf("what is the difference between %s and %s?(question where your character has answer no)\n", character, tmp);
     scanf("%s", node->text);
-    // printf("%s?(y/n)", node->text);
-    // scanf("%s", answer);
-    // if (strcmp(answer, "y") == 0)
-    // {
+    
     ConstructNode(&node->left);
     
     printf("%s is ", tmp);
     strcpy(node->left->text, tmp);
     
-    // else if (strcmp(answer, "n") == 0)
-    // {
-        
     ConstructNode(&node->right);
-        // node = node->right;
+
     printf("%s is ", character);
     strcpy(node->right->text, character);
-    // }
 }
 
 //========================
@@ -123,6 +106,7 @@ void PlayAkinator(Node* node)
 {
     FILE* base = fopen("base.txt", "a+");
    // printf("a gde");
+    CHECK_ERR(base == NULL, "didnot open");
     ReadBase(&node, base);
     AddNode(node);
     PreorderPrint(node);
@@ -132,11 +116,7 @@ void PlayAkinator(Node* node)
     SaveBase(output, node, 0);
     fclose(output);
 }
-                                    //рассмотрим случай, когда мы должны путешествовать по дереву, тогда 
-                                    // мы просто должны перемещаться дальше, а аргумент мы должны получать из читалки файла нашего
-                                    // добавлять новые узлы когда новая игра 
-                                    //спрашивать пользователя надо ли ему добавить новый узел
-                                    //так как персонаж не подошел
+
 //============================================
 
 void AddNode(Node* node)
@@ -147,10 +127,7 @@ void AddNode(Node* node)
     {
         printf("Your character is %s, YOU ARE WINNER\n", node->text);
         printf("Am I right?\n");
-        //printf("do you want to add an answer or a question?(a/q/no)\n");       
         scanf("%s", answer);
-                   // спросить хочет ли пользователь добавить новый вопрос или ответ
-        //if (strcmp(answer, "y") == 0) /*NewNode(node);*/
         if (strcmp(answer, "n") == 0) CreateQuestion(node); 
         return;
     }
@@ -164,17 +141,17 @@ void AddNode(Node* node)
     }
     else if (strcmp(answer, "n") == 0)
     {
-        if (node->right == NULL)
-        {
-            printf("do you want to add an answer or a question?(a/q/no)\n");
-            scanf("%s", answer);
-            if (strcmp(answer, "a") == 0) NewNode(node);
-            if (strcmp(answer, "q") == 0) CreateQuestion(node);
-        }
-        else
-        {
-            AddNode(node->right);
-        }
+        // if (node->right == NULL)
+        // {
+        //     printf("do you want to add an answer or a question?(a/q/no)\n");
+        //     scanf("%s", answer);
+        //     if (strcmp(answer, "a") == 0) NewNode(node);
+        //     if (strcmp(answer, "q") == 0) CreateQuestion(node);
+        // }
+        // else
+        // {
+        AddNode(node->right);
+        // }
     }
     else
     {
@@ -186,22 +163,18 @@ void AddNode(Node* node)
 
 void NewNode(Node* node)
 {
-    //if (node->)
     FreeBuffer();
     printf("%s?\n", node->text);
     char answer[MAXLEN] = "";
     scanf("%s", answer);
     if (strcmp(answer, "y") == 0)
     {
-        //AddQuestion(node->left);
-        // node = node->left;
         ConstructNode(&node->left);
         AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
                                             // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
     }
     else if (strcmp(answer, "n") == 0)
     {
-        // node = node->right;
         ConstructNode(&node->right);
         AddAnswer(node->right);
     }
@@ -209,7 +182,6 @@ void NewNode(Node* node)
     {
         printf("smth bad have happened\n");
     }
-    //printf("%s?\n", node->text);
 }
 
 //==========================
@@ -221,7 +193,7 @@ void ReadBase(Node** node, FILE* input)
     if (strcmp(bracket, "{") == 0)
     {
         ConstructNode(node);
-       // printf("node %p\n", node);
+        //printf("node %p\n", node);
         fscanf(input, "%s", (*node)->text);
         //printf("node->text %s\n", (*node)->text);
         ReadBase(&(*node)->left, input);
@@ -232,7 +204,6 @@ void ReadBase(Node** node, FILE* input)
         ungetc('}', input);
         return;
     }
-    //printf("%s\n", bracket);
     fscanf(input, "%s", bracket);
     return;
 }
@@ -242,20 +213,21 @@ void ReadBase(Node** node, FILE* input)
 void ConstructNode(Node** node)
 {
     *node = (Node*) malloc(sizeof(Node));
+    CHECK_ERR(*node == NULL, "problems with memory");
     (*node)->left  = NULL;
     (*node)->right = NULL;
     (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
+    CHECK_ERR((*node)->text == NULL, "problems with memory");
 }
 
 //=====================================
 
-void AddRightNode(Node** node)
-{
-    FreeBuffer();
-    ConstructNode(node);
-    AddAnswer(*node);
-    // printf("%s is \n",(*node)->text);
-}
+// void AddRightNode(Node** node)
+// {
+//     FreeBuffer();
+//     ConstructNode(node);
+//     AddAnswer(*node);
+// }
 
 //==========================
 
@@ -279,6 +251,7 @@ void Aki(Node* node)
 void GraphDump(Node* node)
 {
     FILE* dumpfile = fopen("dumpfile.txt", "w");
+    CHECK_ERR(dumpfile == NULL, "problems with opening file");
     fprintf(dumpfile, "digraph G {\n");
     GraphTree(node, dumpfile, 0);
     fprintf(dumpfile, "}");
@@ -318,3 +291,27 @@ void GraphTree(Node* node, FILE* dumpfile, int flag)    // flag defines color of
 }
 
 //=============================
+
+void FindObject(Node* node, char* object)
+{
+    if (node != NULL)
+    {
+        printf("%s\n", object);
+        if (strcmp(object, node->text) == 0)
+        {
+            printf("object have been found\n");
+            PrintInfo(node);
+        }
+        FindObject(node->left,  object);
+        FindObject(node->right, object);
+    }
+    // printf("ded");
+    return;
+}
+
+//=====================================
+
+void PrintInfo(Node* node)
+{
+    if (node)
+}
