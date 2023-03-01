@@ -1,0 +1,29 @@
+{ human
+   { famous
+       { not_russian_now
+           { morgenshtern }
+
+           { yanix }
+       }
+
+       { clever
+           { prepod
+               { skubachevsky }
+
+               { david }
+           }
+
+           { andrey kalinin }
+       }
+   }
+
+   { cat
+       { obshazhnaya
+           { 1.5 }
+
+           { tom }
+       }
+
+       { bober }
+   }
+}
