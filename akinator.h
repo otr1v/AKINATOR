@@ -80,12 +80,12 @@ void CreateQuestion(Node* node)
     printf("what is the difference between %s and %s?(question where your character has answer no)\n", character, tmp);
     scanf("%s", node->text);
     
-    ConstructNode(&node->left);
+    ConstructNode(node, &node->left);
     
     printf("%s is ", tmp);
     strcpy(node->left->text, tmp);
     
-    ConstructNode(&node->right);
+    ConstructNode(node, &node->right);
 
     printf("%s is ", character);
     strcpy(node->right->text, character);
@@ -107,9 +107,10 @@ void PlayAkinator(Node* node)
     FILE* base = fopen("base.txt", "a+");
    // printf("a gde");
     CHECK_ERR(base == NULL, "didnot open");
-    ReadBase(&node, base);
+    ReadBase(NULL, &node, base);
     AddNode(node);
-    PreorderPrint(node);
+    Explore (node);
+    //PreorderPrint(node);
     fclose(base);
     FILE* output = fopen("base.txt", "w+");
     GraphDump(node);
@@ -169,13 +170,13 @@ void NewNode(Node* node)
     scanf("%s", answer);
     if (strcmp(answer, "y") == 0)
     {
-        ConstructNode(&node->left);
+        ConstructNode(node, &node->left);
         AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
                                             // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
     }
     else if (strcmp(answer, "n") == 0)
     {
-        ConstructNode(&node->right);
+        ConstructNode(node, &node->right);
         AddAnswer(node->right);
     }
     else
@@ -186,18 +187,18 @@ void NewNode(Node* node)
 
 //==========================
 
-void ReadBase(Node** node, FILE* input)
+void ReadBase(Node* prevnode, Node** node, FILE* input)
 {
     char bracket[] = "";
     fscanf(input, "%s", bracket);
     if (strcmp(bracket, "{") == 0)
     {
-        ConstructNode(node);
+        ConstructNode(prevnode, node);
         //printf("node %p\n", node);
         fscanf(input, "%s", (*node)->text);
         //printf("node->text %s\n", (*node)->text);
-        ReadBase(&(*node)->left, input);
-        ReadBase(&(*node)->right, input);
+        ReadBase(*node, &(*node)->left, input);
+        ReadBase(*node, &(*node)->right, input);
     }
     else if (strcmp(bracket, "}") == 0)
     {
@@ -210,15 +211,42 @@ void ReadBase(Node** node, FILE* input)
 
 //====================================
 
-void ConstructNode(Node** node)
+void ConstructNode(Node* prevnode, Node** node)
 {
+    // static bool flag = false;
+    // if (flag == false)
+    // {
+    //     flag = true;
+    //     (*node)->parent = NULL;
+    // }
+    // else
+    // {
+    
+    // }
     *node = (Node*) malloc(sizeof(Node));
     CHECK_ERR(*node == NULL, "problems with memory");
-    (*node)->left  = NULL;
-    (*node)->right = NULL;
+
+    (*node)->left   = NULL;
+    (*node)->right  = NULL;
+    (*node)->parent = prevnode;
+
     (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
     CHECK_ERR((*node)->text == NULL, "problems with memory");
 }
+
+
+// void Explore (Node * head) {
+
+//     if (head) {
+
+//         if (head->parent)
+//             printf("compare:  %s %s\n", head->text, head->parent->text);
+
+//         Explore (head->left);
+//         Explore (head->right);
+
+//     }
+// }
 
 //=====================================
 
@@ -313,5 +341,20 @@ void FindObject(Node* node, char* object)
 
 void PrintInfo(Node* node)
 {
-    if (node)
+    if (node);
+}
+
+//===============================================
+
+void DestroyAki(Node** node)
+{
+    if (*node == NULL)
+    {
+        return;
+    }                           //TODO
+    DestroyAki(&(*node)->left);
+    free(*node);
+    free((*node)->text);
+    DestroyAki(&(*node)->right);
+
 }
