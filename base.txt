@@ -1,19 +1,35 @@
 { human
    { famous
-       { not_russian_now
-           { morgenshtern }
+       { abroad_now
+           { migrant
+               { morgenshtern }
+
+               { lil_pump }
+           }
 
            { yanix }
        }
 
        { clever
            { prepod
-               { skubachevsky }
+               { math
+                   { skubachevsky }
 
-               { david }
+                   { Ovchos }
+               }
+
+               { man
+                   { classmate
+                       { david }
+
+                       { sanya }
+                   }
+
+                   { ksusha }
+               }
            }
 
-           { andrey kalinin }
+           { andrey_kalinin }
        }
    }
 
@@ -27,3 +43,4 @@
        { bober }
    }
 }
+
