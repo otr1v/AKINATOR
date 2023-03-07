@@ -1,0 +1,48 @@
+digraph G {
+human
+human[shape = box, color = blue];
+human -> famous
+famous[shape = box, color = green];
+famous -> not_russian_now
+not_russian_now[shape = box, color = green];
+not_russian_now -> migrant
+migrant[shape = box, color = green];
+migrant -> morgenshtern
+morgenshtern[shape = box, color = green];
+migrant -> lil_pump
+lil_pump[shape = box, color = red];
+not_russian_now -> yanix
+yanix[shape = box, color = red];
+famous -> clever
+clever[shape = box, color = red];
+clever -> prepod
+prepod[shape = box, color = green];
+prepod -> math
+math[shape = box, color = green];
+math -> skubachevsky
+skubachevsky[shape = box, color = green];
+math -> Ovchos
+Ovchos[shape = box, color = red];
+prepod -> man
+man[shape = box, color = red];
+man -> classmate
+classmate[shape = box, color = green];
+classmate -> david
+david[shape = box, color = green];
+classmate -> sanya
+sanya[shape = box, color = red];
+man -> ksusha
+ksusha[shape = box, color = red];
+clever -> andrey_kalinin
+andrey_kalinin[shape = box, color = red];
+human -> cat
+cat[shape = box, color = red];
+cat -> obshazhnaya
+obshazhnaya[shape = box, color = green];
+obshazhnaya -> 1.5
+1.5[shape = box, color = green];
+obshazhnaya -> tom
+tom[shape = box, color = red];
+cat -> bober
+bober[shape = box, color = red];
+}
