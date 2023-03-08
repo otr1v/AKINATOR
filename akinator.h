@@ -13,8 +13,35 @@
     
 //     printf("%s", (*node)->text);
 // }
+//==========================
 
-//============================================
+void ConstructNode(Node* prevnode, Node** node)
+{
+    *node = (Node*) malloc(sizeof(Node));
+    CHECK_ERR(*node == NULL, "problems with memory");
+
+    (*node)->left   = NULL;
+    (*node)->right  = NULL;
+    (*node)->parent = prevnode;
+
+    (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
+    CHECK_ERR((*node)->text == NULL, "problems with memory");
+}
+
+//==============================================================
+
+void CreateDataStrings(DataStrings** data)
+{
+    *data = (DataStrings*) malloc(sizeof(DataStrings));
+    CHECK_ERR(*data == NULL, "problems with memory");
+
+    (*data)->buf = (char *) calloc(BUFLEN, sizeof(char));
+    (*data)->SizeBuf         = 0;
+    (*data)->NumberOfStrings = 0;
+    (*data)->Second          = 0;
+}
+
+//================================================
 
 void PreorderPrint(Node* node)
 {
@@ -28,19 +55,55 @@ void PreorderPrint(Node* node)
     return;
 }
 
-//============================================================
+//===========================================
 
-void AddAnswer(Node* node)
+void Aki(Node* node, DataStrings* FirstData)
 {
-    printf("type your answer without \"?\" and without any spaces\n");
-    scanf("%s", node->text);
-    return;
+    printf("WELCOME TO AKINATOR\nHERE YOU CAN GUESS YOUR HERO, ANSWERING QUESTIONS\n");
+    printf("MENU:\nType your command: play, quit, comp(comparison of two objects), info about where the character is\n");
+    char cmd[MAXLEN] = "";
+    scanf("%s", cmd);
+    #define DEF_CMD(num, name, code)           \
+            if (strcasecmp(cmd, #name) == 0)    \
+                code                             
+                                       
+    #include "cmd.h"
+    #undef DEF_CMD
+ 
 }
+
 
 //==================================================
 
+void ReadBase(Node* prevnode, Node** node, FILE* input)
+{
+    char bracket[] = "";
+    fscanf(input, "%s", bracket);
+    if (strcmp(bracket, "{") == 0)
+    {
+        ConstructNode(prevnode, node);
+        //printf("node %p\n", node);
+        fscanf(input, "%s", (*node)->text);
+        //printf("node->text %s\n", (*node)->text);
+        ReadBase(*node, &(*node)->left, input);
+        ReadBase(*node, &(*node)->right, input);
+    }
+    else if (strcmp(bracket, "}") == 0)
+    {
+        ungetc('}', input);
+        return;
+    }
+    fscanf(input, "%s", bracket);
+    return;
+}
+
+//====================================
+
 void SaveBase(FILE* base, Node* node, int amountspaces)
 {
+    CHECK_ERR(node == NULL, "node NULL pointer");
+    CHECK_ERR(base == NULL, "File NULL pointer");
+
     char ch = '{';
     fprintf(base, "%*c %s", amountspaces, ch, node->text);
     if ((node->left == NULL) && (node->right == NULL))
@@ -67,59 +130,6 @@ void SaveBase(FILE* base, Node* node, int amountspaces)
 
 //============================================
 
-void CreateQuestion(Node* node)
-{
-    FreeBuffer();
-    char character[MAXLEN] = "";
-    printf("type your character:\n");
-    scanf("%s", character);
-
-    char tmp[MAXLEN]    = "";
-    char answer[MAXLEN] = "";
-    strcpy(tmp, node->text);
-    printf("what is the difference between %s and %s?(question where your character has answer no)\n", character, tmp);
-    scanf("%s", node->text);
-    
-    ConstructNode(node, &node->left);
-    
-    printf("%s is ", tmp);
-    strcpy(node->left->text, tmp);
-    
-    ConstructNode(node, &node->right);
-
-    printf("%s is ", character);
-    strcpy(node->right->text, character);
-}
-
-//========================
-
-void FreeBuffer()
-{
-    int x = 0;
-    while ((x = getchar()) != EOF && x != '\n') 
-        continue;
-}
-
-//===================================
-
-void PlayAkinator(Node* node)
-{
-    FILE* base = fopen("base.txt", "a+");
-   // printf("a gde");
-    CHECK_ERR(base == NULL, "didnot open");
-    ReadBase(NULL, &node, base);
-    AddNode(node);
-    Explore (node);
-    //PreorderPrint(node);
-    fclose(base);
-    FILE* output = fopen("base.txt", "w+");
-    GraphDump(node);
-    SaveBase(output, node, 0);
-    fclose(output);
-}
-
-//============================================
-
 void AddNode(Node* node)
 {
     char answer[3] = "";
@@ -142,15 +152,6 @@ void AddNode(Node* node)
     }
     else if (strcmp(answer, "n") == 0)
     {
-        // if (node->right == NULL)
-        // {
-        //     printf("do you want to add an answer or a question?(a/q/no)\n");
-        //     scanf("%s", answer);
-        //     if (strcmp(answer, "a") == 0) NewNode(node);
-        //     if (strcmp(answer, "q") == 0) CreateQuestion(node);
-        // }
-        // else
-        // {
         AddNode(node->right);
         // }
     }
@@ -162,119 +163,67 @@ void AddNode(Node* node)
 
 //=============================
 
-void NewNode(Node* node)
+void CreateQuestion(Node* node)
 {
     FreeBuffer();
-    printf("%s?\n", node->text);
-    char answer[MAXLEN] = "";
-    scanf("%s", answer);
-    if (strcmp(answer, "y") == 0)
-    {
-        ConstructNode(node, &node->left);
-        AddAnswer(node->left);              //переподвязку узла добавить( то есть так чтобы ответ был)
-                                            // новый ответ добавить и новый вопрос соответвственно(как их различить два персонажа, если на старом месте стоял уже ответ)
-    }
-    else if (strcmp(answer, "n") == 0)
-    {
-        ConstructNode(node, &node->right);
-        AddAnswer(node->right);
-    }
-    else
-    {
-        printf("smth bad have happened\n");
-    }
+    char character[MAXLEN] = "";
+    printf("type your character:\n");
+    scanf("%s", character);
+
+    char tmp[MAXLEN]    = "";
+    strcpy(tmp, node->text);
+    printf("what is the difference between %s and %s?(question where your character has answer no)\n", character, tmp);
+    scanf("%s", node->text);
+    
+    ConstructNode(node, &node->left);
+    
+    printf("%s is ", tmp);
+    strcpy(node->left->text, tmp);
+    
+    ConstructNode(node, &node->right);
+
+    printf("%s is ", character);
+    strcpy(node->right->text, character);
 }
 
-//==========================
+//============================================================
 
-void ReadBase(Node* prevnode, Node** node, FILE* input)
+void AddAnswer(Node* node)
 {
-    char bracket[] = "";
-    fscanf(input, "%s", bracket);
-    if (strcmp(bracket, "{") == 0)
-    {
-        ConstructNode(prevnode, node);
-        //printf("node %p\n", node);
-        fscanf(input, "%s", (*node)->text);
-        //printf("node->text %s\n", (*node)->text);
-        ReadBase(*node, &(*node)->left, input);
-        ReadBase(*node, &(*node)->right, input);
-    }
-    else if (strcmp(bracket, "}") == 0)
-    {
-        ungetc('}', input);
-        return;
-    }
-    fscanf(input, "%s", bracket);
+    printf("type your answer without \"?\" and without any spaces\n");
+    scanf("%s", node->text);
     return;
 }
 
-//====================================
+//==============================================
 
-void ConstructNode(Node* prevnode, Node** node)
+void FreeBuffer()
 {
-    // static bool flag = false;
-    // if (flag == false)
-    // {
-    //     flag = true;
-    //     (*node)->parent = NULL;
-    // }
-    // else
-    // {
-    
-    // }
-    *node = (Node*) malloc(sizeof(Node));
-    CHECK_ERR(*node == NULL, "problems with memory");
-
-    (*node)->left   = NULL;
-    (*node)->right  = NULL;
-    (*node)->parent = prevnode;
-
-    (*node)->text = (char*) malloc (MAXLEN * sizeof(char));
-    CHECK_ERR((*node)->text == NULL, "problems with memory");
+    int x = 0;
+    while ((x = getchar()) != EOF && x != '\n') 
+        continue;
 }
 
+//===================================
 
-// void Explore (Node * head) {
-
-//     if (head) {
-
-//         if (head->parent)
-//             printf("compare:  %s %s\n", head->text, head->parent->text);
-
-//         Explore (head->left);
-//         Explore (head->right);
-
-//     }
-// }
-
-//=====================================
-
-// void AddRightNode(Node** node)
-// {
-//     FreeBuffer();
-//     ConstructNode(node);
-//     AddAnswer(*node);
-// }
-
-//==========================
-
-void Aki(Node* node)
+void PlayAkinator(Node* node)
 {
-    printf("WELCOME TO AKINATOR\nHERE YOU CAN GUESS YOUR HERO, ANSWERING QUESTIONS\n");
-    printf("MENU:\nType your command: play, quit or info about where the character is\n");
-    char cmd[MAXLEN] = "";
-    scanf("%s", cmd);
-    #define DEF_CMD(num, name, code)           \
-            if (strcasecmp(cmd, #name) == 0)    \
-                code                             
-                                       
-    #include "cmd.h"
-    #undef DEF_CMD
- 
+    FILE* base = fopen("base.txt", "a+");
+    CHECK_ERR(base == NULL, "didnot open");
+
+    ReadBase(NULL, &node, base);
+    AddNode(node);
+   
+    fclose(base);
+    FILE* output = fopen("base.txt", "w+");
+    CHECK_ERR(output == NULL, "didnot open");
+
+    GraphDump(node);
+    SaveBase(output, node, 0);
+    fclose(output);
 }
 
-//==========================================
+//============================================
 
 void GraphDump(Node* node)
 {
@@ -320,28 +269,47 @@ void GraphTree(Node* node, FILE* dumpfile, int flag)    // flag defines color of
 
 //=============================
 
-void FindObject(Node* node, char* object)
-{
+void ExistenceObject(Node* node, char* object, bool flag, bool printflag) // if you want to print info about object, flag should be = 1
+{                                                                           // printflag for PrintInfo
     if (node != NULL)
     {
-        printf("%s\n", object);
         if (strcmp(object, node->text) == 0)
         {
-            printf("object have been found\n");
-            PrintInfo(node);
+            printf("%s is:\n", object);
+            if (flag)   PrintInfo(node->parent, node->text, printflag);
         }
-        FindObject(node->left,  object);
-        FindObject(node->right, object);
+        else
+        {
+            //printf("object %s have not been found", object);
+        }
+        ExistenceObject(node->left,  object, flag, printflag);
+        ExistenceObject(node->right, object, flag, printflag);
     }
-    // printf("ded");
     return;
 }
 
 //=====================================
 
-void PrintInfo(Node* node)
+void PrintInfo(Node* node, char* tmp, bool printflag)   //принтфлаг - нужно ли печатать в стдаут или в файл
 {
-    if (node);
+    FILE* characterfile = fopen("text.txt", "a+");
+    if (node)
+    {
+        if (printflag == false)
+        {
+            if      (strcmp(tmp, node->left->text) == 0)  printf("%s\n", node->text);
+            else if (strcmp(tmp, node->right->text) == 0) printf("not %s\n", node->text);
+        }
+        else
+        {
+            
+            if      (strcmp(tmp, node->left->text) == 0)  fprintf(characterfile, "%s\n", node->text);
+            else if (strcmp(tmp, node->right->text) == 0) fprintf(characterfile, "not %s\n", node->text);
+            
+        }
+        PrintInfo(node->parent, node->text, printflag);
+    }
+    fclose(characterfile);
 }
 
 //===============================================
@@ -351,10 +319,117 @@ void DestroyAki(Node** node)
     if (*node == NULL)
     {
         return;
-    }                           //TODO
+    }     
     DestroyAki(&(*node)->left);
-    free(*node);
-    free((*node)->text);
+   
     DestroyAki(&(*node)->right);
+    free((*node)->text);
+    free(*node);
+    
+}
 
+//============================================
+
+void CreateFileCharacters(Node* node, char buf[])
+{
+    
+    if (node)
+    {
+        FILE* file = fopen("text.txt", "a+");
+        fprintf(file, "%s\n", node->text);
+        CreateFileCharacters(node->left , buf);
+        CreateFileCharacters(node->right, buf );
+        fclose(file);
+
+    }
+}
+
+//===============================================
+
+int FileSize(FILE* fp)
+{
+    struct stat buffer = {};
+    int res_fstat = fstat(fileno(fp), &buffer);
+    CHECK_ERR(res_fstat == -1, "can't fill the structure stat");
+    int size_buf = buffer.st_size;
+    return size_buf;
+}
+//===============================
+
+void WriteBuf(DataStrings* data)
+{
+    FILE* names = fopen("text.txt", "r");
+    data->SizeBuf = FileSize(names);
+    fread(data->buf, sizeof(char), data->SizeBuf + 2, names);
+    for (int i = 0; i < data->SizeBuf; i++)
+    {
+        if (data->buf[i] == '\n')
+        {
+            data->buf[i] = '\0';
+            data->NumberOfStrings++;
+        }
+    }
+    fclose(names);
+}
+
+//========================================
+
+void CreateArrayOfPtr(DataStrings* data)
+{
+    int CounterText = 0;
+    for (int i = 0; i < data->SizeBuf; i++)
+    {
+        if (i == 0)
+        {
+            data->Text[0] = &(data->buf[0]);
+            CounterText++;
+        }
+        if (data->buf[i] == '\0' && data->buf[i + 1] == '?') data->Second = CounterText;
+        if (data->buf[i] == '\0')
+        {
+            data->Text[CounterText] = &data->buf[i + 1];
+            CounterText++;
+        }
+    }
+}
+
+//=================================
+
+void Compare(DataStrings* data, char* first, char* second)
+{
+    int CurrentLine = 0;
+    printf("%d %d\n", data->NumberOfStrings, data->Second);
+    for (CurrentLine; CurrentLine < data->Second; CurrentLine++)
+    {
+        if (CurrentLine + data->Second + 1 < data->NumberOfStrings)
+        {
+            if (strcmp(data->Text[CurrentLine], data->Text[CurrentLine + data->Second + 1]) == 0)
+            {
+                printf("The same characteristics are: %s\n", data->Text[CurrentLine]);
+            }
+            else
+            {
+                printf("different:\n%s is %s\n", first, data->Text[CurrentLine]);
+                printf("%s is %s\n", second, data->Text[CurrentLine + data->Second + 1]);
+            }
+        }
+        else
+        {
+            printf("different:\n%s is %s\n", first, data->Text[CurrentLine]);
+        }
+    }
+    for (CurrentLine; CurrentLine + data->Second + 1 < data->NumberOfStrings; CurrentLine++)
+    {
+        printf("different:\n%s is %s\n", second, data->Text[CurrentLine + data->Second + 1]);
+    }
+}
+//===============================
+
+void WriteObjectsBase(Node* node, char* first, char* second)
+{
+    ExistenceObject(node, first , 1, 1);
+    FILE* textfile = fopen("text.txt", "a+");
+    fprintf(textfile, "?\n");
+    fclose(textfile);
+    ExistenceObject(node, second, 1, 1);
 }
