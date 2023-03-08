@@ -1,4 +1,4 @@
-#include "akinator.h"
+#include "head_aki.h"
 
 int main()
 {
