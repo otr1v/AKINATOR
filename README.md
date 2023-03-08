@@ -7,7 +7,7 @@
 #### 3. You can also check information about your hero using command "info"
 
 ##### How does it work?
-##### Program has Base of heroes(you can check the file base.txt using {..{... } }
+##### Program has Base of heroes(you can check the file base.txt, it uses {..{... } }
 ##### Than program Reads this base and you can use any or three mods
 ## Here is the Tree:
 ![image](https://user-images.githubusercontent.com/100768041/223735539-21c96e79-f18b-4db5-9823-746a0e8859be.png)
